@@ -16,7 +16,5 @@ RUN yarn install
 RUN mkdir src
 ADD src/ src/
 
-RUN ls -lah src
-
 CMD [ "yarn", "start" ]
 
