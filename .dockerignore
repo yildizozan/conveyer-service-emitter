@@ -1,0 +1,17 @@
+Dockerfile
+
+# GIT
+.git
+.gitignore
+
+# Mac
+.DS_Store
+
+# Markdown files
+*.md
+
+# Env files
+env.*
+
+# Data files
+*.csv
