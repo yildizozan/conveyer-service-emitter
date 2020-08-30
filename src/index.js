@@ -50,7 +50,6 @@ amqp.connect(BROKER_CONN, function (error0, connection) {
                 if (msg !== null) {
                     const m = msg.content.toString();
                     console.log(" [x] %s", m);
-                    console.log("Queue size: ", queue.length)
                     queue.push(m)
 
                     // Send acknowledge to broker
