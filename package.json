@@ -1,17 +1,21 @@
 {
-	  "name": "conveyer-service-emitter",
-	  "version": "1.0.0",
-	  "description": "Emitter to devices for monitoring",
-	  "main": "src/index.js",
-	  "scripts": {
-			"start": "node src/index.js",
-		  "test": "jest"
-	  },
-	  "author": "Ozan Yıldız",
-	  "license": "MIT",
-	  "dependencies": {
-		  "amqplib": "latest",
-		  "socket.io": "2.3.0"
-	  }
+	"name": "conveyer-service-emitter",
+	"version": "1.0.0",
+	"description": "Emitter to devices for monitoring",
+	"main": "src/index.js",
+	"scripts": {
+		"start": "node src/index.js",
+		"test": "jest"
+	},
+	"author": "Ozan Yıldız",
+	"license": "MIT",
+	"dependencies": {
+		"amqp": "^0.2.7",
+		"amqplib": "^0.6.0",
+		"express": "^4.17.1",
+		"socket.io": "^2.3.0"
+	},
+	"devDependencies": {
+		"@types/socket.io": "^2.1.11"
+	}
 }
-

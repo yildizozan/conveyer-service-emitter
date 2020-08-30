@@ -1,55 +1,64 @@
-var amqp = require('amqplib/callback_api');
+const amqp = require('amqplib/callback_api');
 
-var http = require('http').createServer();
-var io = require('socket.io')(http);
+const http = require('http').createServer();
+const io = require('socket.io')(http);
 // io.attach(http, {
 //   pingTimeout: 60000,
 // });
 
 const BROKER_CONN = process.env.BROKER_CONN;
 
-// Websocket part
-io.on('connection', function (socket) {
-    console.log('a user connected');
-    socket.on('disconnect', function () {
-        console.log('user disconnected');
-    });
+let queue = []
 
-    amqp.connect(BROKER_CONN, function (error0, connection) {
-        if (error0) {
-            throw error0;
+// Websocket part
+let INTERVAL;
+
+io.sockets.on('connection', function (socket) {
+    if (!INTERVAL) {
+        INTERVAL = setInterval(function () {
+            const message = queue.shift();
+            if (message) {
+                socket.broadcast.emit('new data', message);
+            }
+        }, 500);
+    }
+});
+
+amqp.connect(BROKER_CONN, function (error0, connection) {
+    if (error0) {
+        throw error0;
+    }
+
+    connection.createChannel(function (error1, channel) {
+        if (error1) {
+            throw error1;
         }
 
-        connection.createChannel(function (error1, channel) {
-            if (error1) {
-                throw error1;
+        const exchange = 'conveyer';
+
+        channel.assertExchange(exchange, 'fanout', { durable: true });
+
+        channel.assertQueue('clients', {}, function (error2, q) {
+            if (error2) {
+                throw error2;
             }
 
-            var exchange = 'conveyer';
+            console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", q.queue);
+            channel.bindQueue(q.queue, exchange, '');
 
-            channel.assertExchange(exchange, 'fanout', { durable: true });
+            channel.consume(q.queue, function (msg) {
+                if (msg !== null) {
+                    const m = msg.content.toString();
+                    console.log(" [x] %s", m);
+                    console.log("Queue size: ", queue.length)
+                    queue.push(m)
 
-            channel.assertQueue('clients', {}, function (error2, q) {
-                if (error2) {
-                    throw error2;
+                    // Send acknowledge to broker
+                    channel.ack(msg);
                 }
-
-                console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", q.queue);
-                channel.bindQueue(q.queue, exchange, '');
-
-                channel.consume(q.queue, function (msg) {
-                    if (msg !== null) {
-                        console.log(" [x] %s", msg.content.toString());
-                        socket.emit('new data', msg.content.toString());
-                        
-                        // Send acknowledge to broker
-                        channel.ack(msg);
-                    }
-                });
             });
         });
     });
-
 });
 
 http.listen(3000, function () {
