@@ -8,7 +8,6 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY package.json .
 COPY yarn.lock .
-COPY .yarnrc.yml .
 
 RUN yarn install
 # If you are building your code for production
