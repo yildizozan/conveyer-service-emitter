@@ -20,7 +20,7 @@ io.sockets.on('connection', function (socket) {
             if (message) {
                 socket.broadcast.emit('new data', message);
             }
-        }, 500);
+        }, 0);
     }
 });
 
@@ -36,7 +36,7 @@ amqp.connect(BROKER_CONN, function (error0, connection) {
 
         const exchange = 'conveyer';
 
-        channel.assertExchange(exchange, 'fanout', { durable: true });
+        channel.assertExchange(exchange, 'fanout', {durable: true});
 
         channel.assertQueue('clients', {}, function (error2, q) {
             if (error2) {
